@@ -11,6 +11,12 @@ defmodule Chat.Server.Dispatch do
   def handle_command(<<"whoami">>) do
     Command.who_am_i()
   end
+  def handle_command(<<"whisper ", rest :: binary>>) do
+    Command.whisper(rest)
+  end
+  def handle_command(<<"w ", rest :: binary>>) do
+    Command.whisper(rest)
+  end
   def handle_command(command) do
     Command.unknown(command)
   end

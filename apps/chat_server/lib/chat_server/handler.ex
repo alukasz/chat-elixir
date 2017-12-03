@@ -40,7 +40,8 @@ defmodule Chat.Server.Handler do
     data = [
       "Available commands:",
       "auth <name> - authenticates under given name",
-      "whoami - prints your name"
+      "whoami - prints your name",
+      "whisper <name> <message> - sends 'message' to 'name', w <name> <message> for short"
     ]
     |> Enum.map(&encode_data(&1))
     |> Enum.join()
