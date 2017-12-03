@@ -24,8 +24,17 @@ defmodule Chat.Server.Handler do
 
     {:noreply, state}
   end
+  def handle_info({:tcp_closed, _socket}, state) do
+    {:stop, :normal, state}
+  end
+  def handle_info({:tcp_error, _socket, reason}, state) do
+    {:stop, reason, state}
+  end
+  def handle_info(:timeout, state) do
+    {:stop, :normal, state}
+  end
   def handle_info(message, state) do
-    Logger.warn("Unhandled message: #{inspect message}")
+    Logger.warn("#{__MODULE__} unhandled message: #{inspect message}")
 
     {:noreply, state}
   end
