@@ -6,7 +6,7 @@ defmodule Chat.Server.Application do
   alias Chat.Server.Handler
 
   def start(_type, _args) do
-    ranch_opts = [port: 8080]
+    ranch_opts = [port: Application.get_env(:chat_server, :port)]
     children = [
       {Registry, keys: :unique, name: Chat.Server.UsersRegistry},
       :ranch.child_spec(Chat.Server, :ranch_tcp, ranch_opts, Handler, [])
