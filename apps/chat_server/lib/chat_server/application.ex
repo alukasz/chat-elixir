@@ -6,9 +6,10 @@ defmodule Chat.Server.Application do
   alias Chat.Server.Handler
 
   def start(_type, _args) do
-    opts = [port: 8080]
+    ranch_opts = [port: 8080]
     children = [
-      :ranch.child_spec(Chat.Server, :ranch_tcp, opts, Handler, [])
+      {Registry, keys: :unique, name: Chat.Server.UsersRegistry},
+      :ranch.child_spec(Chat.Server, :ranch_tcp, ranch_opts, Handler, [])
     ]
 
     opts = [strategy: :one_for_one, name: Chat.Server.Supervisor]
