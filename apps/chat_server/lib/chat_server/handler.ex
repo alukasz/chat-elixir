@@ -27,6 +27,11 @@ defmodule Chat.Server.Handler do
 
     {:noreply, state}
   end
+  def handle_info({:send, message}, %{transport: transport, socket: socket} = state) do
+    send_message(message, socket, transport)
+
+    {:noreply, state}
+  end
   def handle_info({:tcp_closed, _socket}, state) do
     {:stop, :normal, state}
   end
@@ -62,8 +67,12 @@ defmodule Chat.Server.Handler do
     |> Chat.Server.Dispatch.handle_command()
   end
 
-  defp maybe_send({:send, data}, socket, transport) do
+  defp send_message(data, socket, transport) do
     transport.send(socket, encode_data(data))
+  end
+
+  defp maybe_send({:send, data}, socket, transport) do
+    send_message(data, socket, transport)
   end
   defp maybe_send(_, _, _), do: :ok
 
