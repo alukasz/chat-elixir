@@ -24,4 +24,14 @@ defmodule Chat.Server.AuthTest do
 
     assert Auth.register(@username) == {:error, :name_taken}
   end
+
+  test "authenticate/0 verifies if user is authenticated" do
+    Auth.register(@username)
+
+    assert Auth.authenticate() == {:ok, @username}
+  end
+
+  test "authenticate/0 when user is unauthenticated" do
+    assert Auth.authenticate() == {:error, :unauthenticated}
+  end
 end

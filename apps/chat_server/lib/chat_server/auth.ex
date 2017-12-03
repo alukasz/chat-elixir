@@ -20,4 +20,11 @@ defmodule Chat.Server.Auth do
         end
     end
   end
+
+  def authenticate do
+    case Users.find_by_pid(self()) do
+      {:ok, name} -> {:ok, name}
+      _ -> {:error, :unauthenticated}
+    end
+  end
 end
