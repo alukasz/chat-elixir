@@ -46,7 +46,7 @@ defmodule Chat.Server.Handler do
       "Available commands:",
       "auth <name> - authenticates under given name",
       "whoami - prints your name",
-      "whisper <name> <message> - sends 'message' to 'name', w <name> <message> for short"
+      "whisper <name> <message> - sends 'message' to 'name', 'w' for short"
     ]
     |> Enum.map(&encode_data(&1))
     |> Enum.join()

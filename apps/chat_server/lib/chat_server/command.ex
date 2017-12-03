@@ -1,5 +1,5 @@
 defmodule Chat.Server.Command do
-  alias Chat.Server.{Auth, Users}
+  alias Chat.Server.{Auth, Message, Users}
 
   require Logger
 
@@ -31,17 +31,18 @@ defmodule Chat.Server.Command do
     with {:ok, user} <- Auth.authenticate(),
          {name, message} <- parse_name_message(data),
          {:ok, pid} <- Users.find(name) do
-      send(pid, {:send, "#{user} whispers: #{message}"})
+      Message.whisper(pid, user, message)
       :ok
     else
       {:error, :unauthenticated} ->
         respond("You are not authenticated, use 'auth <name>'.")
+
       {:error, :not_found} ->
         respond("User does not exists.")
     end
   end
 
-  def unknown(command) do
+  def unknown(_) do
     respond("Unknown command.")
   end
 
