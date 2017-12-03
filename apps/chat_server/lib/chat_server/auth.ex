@@ -8,13 +8,6 @@ defmodule Chat.Server.Auth do
 
   @registry Chat.Server.UsersRegistry
 
-  def authenticate(name) do
-    case Registry.lookup(@registry, name) do
-      [{pid, _}] when pid == self() -> {:ok, pid}
-      _ -> :error
-    end
-  end
-
   def register(name) do
     case Users.find_by_pid(self()) do
       {:ok, name} ->

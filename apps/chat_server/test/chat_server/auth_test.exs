@@ -1,6 +1,8 @@
 defmodule Chat.Server.AuthTest do
   use ExUnit.Case
 
+  import Chat.Server.TestHelper
+
   alias Chat.Server.Auth
 
   @username "username"
@@ -16,30 +18,10 @@ defmodule Chat.Server.AuthTest do
   end
 
   test "register/1 when username is already registered" do
-    Task.async(fn ->
+    run_in_background fn ->
       Auth.register(@username)
-    end) |> Task.await()
+    end
 
     assert Auth.register(@username) == {:error, :name_taken}
-  end
-
-  test "authenticate/1 when user was registered" do
-    Auth.register(@username)
-
-    assert Auth.authenticate(@username) == {:ok, self()}
-  end
-
-  test "authenticate/1 when user was not registered" do
-    assert Auth.authenticate(@username) == :error
-  end
-
-  test "authenticate/1 when other connection tries to authenticate" do
-    Task.async(fn ->
-      Auth.register(@username)
-    end) |> Task.await()
-
-    spawn fn ->
-      assert Auth.authenticate(@username) == :error
-    end
   end
 end
