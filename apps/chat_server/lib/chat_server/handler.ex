@@ -14,6 +14,7 @@ defmodule Chat.Server.Handler do
   def init({ref, socket, transport}) do
     :ok = :ranch.accept_ack(ref)
     :ok = transport.setopts(socket, active: true)
+    send(self(), :after_join)
 
     state = %{ref: ref, socket: socket, transport: transport}
     :gen_server.enter_loop(__MODULE__, [], state)
@@ -34,6 +35,19 @@ defmodule Chat.Server.Handler do
   end
   def handle_info(:timeout, state) do
     {:stop, :normal, state}
+  end
+  def handle_info(:after_join, %{transport: transport, socket: socket} = state) do
+    data = [
+      "Available commands:",
+      "auth <name> - authenticates under given name",
+      "whoami - prints your name"
+    ]
+    |> Enum.map(&encode_data(&1))
+    |> Enum.join()
+
+    transport.send(socket, data)
+
+    {:noreply, state}
   end
   def handle_info(message, state) do
     Logger.warn("#{__MODULE__} unhandled message: #{inspect message}")
