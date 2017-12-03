@@ -20,7 +20,9 @@ defmodule Chat.Server.Handler do
   end
 
   def handle_info({:tcp, socket, data}, %{transport: transport, socket: socket} = state) do
-    transport.send(socket, data)
+    data
+    |> dispatch()
+    |> maybe_send(socket, transport)
 
     {:noreply, state}
   end
@@ -37,5 +39,20 @@ defmodule Chat.Server.Handler do
     Logger.warn("#{__MODULE__} unhandled message: #{inspect message}")
 
     {:noreply, state}
+  end
+
+  defp dispatch(data) do
+    data
+    |> String.trim()
+    |> Chat.Server.Dispatch.handle_command()
+  end
+
+  defp maybe_send({:send, data}, socket, transport) do
+    transport.send(socket, encode_data(data))
+  end
+  defp maybe_send(_, _, _), do: :ok
+
+  defp encode_data(data) do
+    data <> "\r\n"
   end
 end
