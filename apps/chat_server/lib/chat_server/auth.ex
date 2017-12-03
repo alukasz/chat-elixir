@@ -4,6 +4,8 @@ defmodule Chat.Server.Auth do
   Only one connection, identified by pid, can claim given name.
   """
 
+  alias Chat.Server.Users
+
   @registry Chat.Server.UsersRegistry
 
   def authenticate(name) do
@@ -14,9 +16,15 @@ defmodule Chat.Server.Auth do
   end
 
   def register(name) do
-    case Registry.register(@registry, name, nil) do
-      {:ok, _} -> :ok
-      {:error, _} -> {:error, :already_registered}
+    case Users.find_by_pid(self()) do
+      {:ok, name} ->
+        {:error, :already_registered}
+
+      _ ->
+        case Registry.register(@registry, name, nil) do
+          {:ok, _} -> :ok
+          {:error, _} -> {:error, :name_taken}
+        end
     end
   end
 end
