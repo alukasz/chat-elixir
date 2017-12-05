@@ -97,7 +97,7 @@ defmodule Chat.Server.CommandTest do
   describe "tell/1" do
     test "sends message to everybody in channel" do
       Auth.register(@username)
-      Channels.join(@channel)
+      Channels.join(@channel, @username)
 
       Command.tell("#{@channel} hello")
 
@@ -113,7 +113,7 @@ defmodule Chat.Server.CommandTest do
   describe "yell/1" do
     test "sends message to everybody" do
       Auth.register(@username)
-      Channels.join(@broadcast_channel)
+      Channels.join(@broadcast_channel, @username)
 
       Command.yell("hello")
 
@@ -122,6 +122,25 @@ defmodule Chat.Server.CommandTest do
 
     test "when user is not authenticated" do
       assert Command.yell("hello") ==
+        sent("You are not authenticated, use 'auth <name>'.")
+    end
+  end
+
+  describe "users/1" do
+    test "returns users in channels" do
+      run_in_background fn ->
+        Auth.register(@other)
+        Channels.join(@channel, "other")
+      end
+      Auth.register(@username)
+      Channels.join(@channel, @username)
+
+      assert Command.users(@channel) ==
+        {:send, "#{@username}, #{@other}"}
+    end
+
+    test "when user is not authenticated" do
+      assert Command.users(@channel) ==
         sent("You are not authenticated, use 'auth <name>'.")
     end
   end

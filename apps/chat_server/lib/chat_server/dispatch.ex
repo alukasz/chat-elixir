@@ -35,6 +35,12 @@ defmodule Chat.Server.Dispatch do
   def handle_command(<<"y ", rest :: binary>>) do
     Command.yell(rest)
   end
+  def handle_command(<<"users ", rest :: binary>>) do
+    Command.users(rest)
+  end
+  def handle_command(<<"u ", rest :: binary>>) do
+    Command.users(rest)
+  end
   def handle_command(command) do
     Command.unknown(command)
   end

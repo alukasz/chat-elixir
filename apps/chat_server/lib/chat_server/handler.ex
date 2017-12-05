@@ -49,6 +49,7 @@ defmodule Chat.Server.Handler do
       "whisper <name> <message> - sends 'message' to 'name', 'w' for short",
       "join <channel> - joins 'channel', 'j' for short",
       "tell <channel> <message> - sends 'message' in 'channel', 't' for short",
+      "users <channel> - lists users in 'channel', 'u' for short",
     ]
     |> Enum.map(&encode_data(&1))
     |> Enum.join()

@@ -8,7 +8,7 @@ defmodule Chat.Server.Command do
   def auth(name) do
     case Auth.register(name) do
       :ok ->
-        Channels.join(@broadcast_channel)
+        Channels.join(@broadcast_channel, name)
         respond("Welcome #{name}.")
 
       {:error, :name_taken} ->
@@ -44,8 +44,8 @@ defmodule Chat.Server.Command do
   end
 
   def join(channel) do
-    authenticated fn _ ->
-      Channels.join(channel)
+    authenticated fn name ->
+      Channels.join(channel, name)
       respond("Joined.")
     end
   end
@@ -60,6 +60,15 @@ defmodule Chat.Server.Command do
   def yell(message) do
     authenticated fn name ->
       Channels.push(name, @broadcast_channel, message)
+    end
+  end
+
+  def users(channel) do
+    authenticated fn _ ->
+      channel
+      |> Channels.list_users()
+      |> Enum.join(", ")
+      |> respond()
     end
   end
 
