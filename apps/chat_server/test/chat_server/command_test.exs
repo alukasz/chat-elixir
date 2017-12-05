@@ -8,10 +8,18 @@ defmodule Chat.Server.CommandTest do
   @username "username"
   @other "other"
   @channel "test"
+  @broadcast_channel "all"
 
   describe "auth/1" do
     test "when user authenticates" do
       assert Command.auth(@username) == sent("Welcome #{@username}.")
+    end
+
+    test "adds to broadcast channel after authentication" do
+      Command.auth(@username)
+
+      assert Registry.keys(Chat.Server.ChannelsRegistry, self()) ==
+        [@broadcast_channel]
     end
 
     test "when name is taken" do
@@ -98,6 +106,22 @@ defmodule Chat.Server.CommandTest do
 
     test "when user is not authenticated" do
       assert Command.join("channel") ==
+        sent("You are not authenticated, use 'auth <name>'.")
+    end
+  end
+
+  describe "yell/1" do
+    test "sends message to everybody" do
+      Auth.register(@username)
+      Channels.join(@broadcast_channel)
+
+      Command.yell("hello")
+
+      assert_receive {:send, "#{@username} in #{@broadcast_channel}: hello"}
+    end
+
+    test "when user is not authenticated" do
+      assert Command.yell("hello") ==
         sent("You are not authenticated, use 'auth <name>'.")
     end
   end

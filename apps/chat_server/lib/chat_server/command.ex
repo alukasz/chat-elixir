@@ -3,9 +3,12 @@ defmodule Chat.Server.Command do
 
   require Logger
 
+  @broadcast_channel "all"
+
   def auth(name) do
     case Auth.register(name) do
       :ok ->
+        Channels.join(@broadcast_channel)
         respond("Welcome #{name}.")
 
       {:error, :name_taken} ->
@@ -64,6 +67,15 @@ defmodule Chat.Server.Command do
     end
   end
 
+  def yell(message) do
+    case Auth.authenticate() do
+      {:ok, name} ->
+        Channels.push(name, @broadcast_channel, message)
+
+      {:error, :unauthenticated} ->
+        respond("You are not authenticated, use 'auth <name>'.")
+    end
+  end
 
   def unknown(_) do
     respond("Unknown command.")
