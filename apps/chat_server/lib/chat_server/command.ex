@@ -1,5 +1,5 @@
 defmodule Chat.Server.Command do
-  alias Chat.Server.{Auth, Message, Users}
+  alias Chat.Server.{Auth, Channels, Message, Users}
 
   require Logger
 
@@ -41,6 +41,29 @@ defmodule Chat.Server.Command do
         respond("User does not exists.")
     end
   end
+
+  def join(channel) do
+    case Auth.authenticate() do
+      {:ok, _} ->
+        Channels.join(channel)
+        respond("Joined.")
+
+      {:error, :unauthenticated} ->
+        respond("You are not authenticated, use 'auth <name>'.")
+    end
+  end
+
+  def tell(data) do
+    case Auth.authenticate() do
+      {:ok, name} ->
+        {channel, message} = parse_name_message(data)
+        Channels.push(name, channel, message)
+
+      {:error, :unauthenticated} ->
+        respond("You are not authenticated, use 'auth <name>'.")
+    end
+  end
+
 
   def unknown(_) do
     respond("Unknown command.")

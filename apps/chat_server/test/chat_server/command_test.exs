@@ -3,10 +3,11 @@ defmodule Chat.Server.CommandTest do
 
   import Chat.Server.TestHelper
 
-  alias Chat.Server.{Auth, Command}
+  alias Chat.Server.{Auth, Channels, Command}
 
   @username "username"
   @other "other"
+  @channel "test"
 
   describe "auth/1" do
     test "when user authenticates" do
@@ -46,14 +47,13 @@ defmodule Chat.Server.CommandTest do
 
   describe "whisper/1" do
     test "sending message" do
+      Auth.register(@username)
       run_in_background fn ->
         Auth.register(@other)
+        assert Command.whisper("#{@username} hello") == :ok
       end
-      Auth.register(@username)
 
-      assert Command.whisper("#{@other} hello") == :ok
-
-      assert_receive {:send, "#{@username} whispers: hello"}
+      assert_receive {:send, "#{@other} whispers: hello"}
     end
 
     test "when user is not authenticated" do
@@ -70,6 +70,35 @@ defmodule Chat.Server.CommandTest do
 
       assert Command.whisper("#{@other} hello") ==
         sent("User does not exists.")
+    end
+  end
+
+  describe "join/1" do
+    test "joins a channel" do
+      Auth.register(@username)
+
+      assert Command.join("channel") == sent("Joined.")
+    end
+
+    test "when user is not authenticated" do
+      assert Command.join("channel") ==
+        sent("You are not authenticated, use 'auth <name>'.")
+    end
+  end
+
+  describe "tell/1" do
+    test "sends message to everybody in channel" do
+      Auth.register(@username)
+      Channels.join(@channel)
+
+      Command.tell("#{@channel} hello")
+
+      assert_receive {:send, "#{@username} in #{@channel}: hello"}
+    end
+
+    test "when user is not authenticated" do
+      assert Command.join("channel") ==
+        sent("You are not authenticated, use 'auth <name>'.")
     end
   end
 

@@ -17,6 +17,18 @@ defmodule Chat.Server.Dispatch do
   def handle_command(<<"w ", rest :: binary>>) do
     Command.whisper(rest)
   end
+  def handle_command(<<"join ", rest :: binary>>) do
+    Command.join(rest)
+  end
+  def handle_command(<<"j ", rest :: binary>>) do
+    Command.join(rest)
+  end
+  def handle_command(<<"tell ", rest :: binary>>) do
+    Command.tell(rest)
+  end
+  def handle_command(<<"t ", rest :: binary>>) do
+    Command.tell(rest)
+  end
   def handle_command(command) do
     Command.unknown(command)
   end
