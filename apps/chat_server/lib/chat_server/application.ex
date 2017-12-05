@@ -9,6 +9,8 @@ defmodule Chat.Server.Application do
     ranch_opts = [port: Application.get_env(:chat_server, :port)]
     children = [
       {Registry, keys: :unique, name: Chat.Server.UsersRegistry},
+      {Registry, keys: :duplicate, name: Chat.Server.ChannelsRegistry,
+                 partitions: System.schedulers_online()},
       :ranch.child_spec(Chat.Server, :ranch_tcp, ranch_opts, Handler, [])
     ]
 

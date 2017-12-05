@@ -12,6 +12,7 @@ defmodule Chat.Server.TestHelper do
       {:ok, process}
     end
 
+    # forward received messages to `process`
     def handle_info(message, process) do
       send(process, message)
 
