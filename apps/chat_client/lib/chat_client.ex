@@ -1,0 +1,2 @@
+defmodule ChatClient do
+end
