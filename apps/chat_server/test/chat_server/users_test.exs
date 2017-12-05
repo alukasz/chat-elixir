@@ -1,6 +1,8 @@
 defmodule Chat.Server.UsersTest do
   use ExUnit.Case
 
+  import Chat.Server.TestHelper
+
   alias Chat.Server.{Auth, Users}
 
   @username "username"
@@ -23,5 +25,16 @@ defmodule Chat.Server.UsersTest do
 
   test "find_by_pid/1 when name is not registered" do
     assert Users.find_by_pid(self()) == {:error, :not_found}
+  end
+
+  test "count returns number of users" do
+    count = 5
+    for i <- 1..count do
+      run_in_background fn ->
+        Chat.Server.Channels.join("all", i)
+      end
+    end
+
+    assert Users.count() == count
   end
 end

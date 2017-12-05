@@ -8,7 +8,7 @@ defmodule Chat.Server.Dispatch do
   def handle_command(<<"auth ", name :: binary>>) do
     Command.auth(name)
   end
-  def handle_command(<<"whoami">>) do
+  def handle_command("whoami") do
     Command.who_am_i()
   end
   def handle_command(<<"whisper ", rest :: binary>>) do
@@ -40,6 +40,12 @@ defmodule Chat.Server.Dispatch do
   end
   def handle_command(<<"u ", rest :: binary>>) do
     Command.users(rest)
+  end
+  def handle_command("count") do
+    Command.count()
+  end
+  def handle_command("c") do
+    Command.count()
   end
   def handle_command(command) do
     Command.unknown(command)

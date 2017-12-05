@@ -50,6 +50,7 @@ defmodule Chat.Server.Handler do
       "join <channel> - joins 'channel', 'j' for short",
       "tell <channel> <message> - sends 'message' in 'channel', 't' for short",
       "users <channel> - lists users in 'channel', 'u' for short",
+      "count - number of users, 'c' for short",
     ]
     |> Enum.map(&encode_data(&1))
     |> Enum.join()

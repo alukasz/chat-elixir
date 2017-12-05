@@ -1,4 +1,5 @@
 defmodule Chat.Server.Users do
+  @broadcast_channel "all"
   @registry Chat.Server.UsersRegistry
 
   def find(name) do
@@ -13,5 +14,14 @@ defmodule Chat.Server.Users do
       [name] -> {:ok, name}
       _ -> {:error, :not_found}
     end
+  end
+
+  # rethink implementation
+  # ETS table with update_counter would be faster
+  # for the cost of manually decreasing counter
+  def count do
+    Chat.Server.ChannelsRegistry
+    |> Registry.lookup(@broadcast_channel)
+    |> length()
   end
 end

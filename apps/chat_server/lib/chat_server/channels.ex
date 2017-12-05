@@ -17,7 +17,9 @@ defmodule Chat.Server.Channels do
   def list_users(channel) do
     @registry
     |> Registry.lookup(channel)
+    |> Enum.take(100)
     |> Enum.map(fn {_, name} -> name end)
+    |> Enum.sort()
   end
 
   defp send_in_channel(entries, message) do

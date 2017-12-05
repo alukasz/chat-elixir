@@ -130,18 +130,31 @@ defmodule Chat.Server.CommandTest do
     test "returns users in channels" do
       run_in_background fn ->
         Auth.register(@other)
-        Channels.join(@channel, "other")
+        Channels.join(@channel, "aaa")
       end
       Auth.register(@username)
-      Channels.join(@channel, @username)
+      Channels.join(@channel, "bbb")
 
       assert Command.users(@channel) ==
-        {:send, "#{@username}, #{@other}"}
+        sent("aaa, bbb")
     end
 
     test "when user is not authenticated" do
       assert Command.users(@channel) ==
         sent("You are not authenticated, use 'auth <name>'.")
+    end
+  end
+
+  describe "count/0" do
+    test "returns number of users" do
+      count = 5
+      for i <- 1..count do
+        run_in_background fn ->
+          Chat.Server.Channels.join("all", i)
+        end
+      end
+
+      assert Command.count() == sent(to_string(count))
     end
   end
 

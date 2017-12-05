@@ -72,6 +72,12 @@ defmodule Chat.Server.Command do
     end
   end
 
+  def count do
+    Users.count()
+    |> to_string()
+    |> respond()
+  end
+
   def unknown(_) do
     respond("Unknown command.")
   end
