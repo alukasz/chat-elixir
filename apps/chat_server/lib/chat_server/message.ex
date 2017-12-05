@@ -1,6 +1,8 @@
 defmodule Chat.Server.Message do
   def whisper(to, from, message) do
     send(to, {:send, format_whisper(from, message)})
+
+    :ok
   end
 
   def format_channel_message(from, channel, message) do
@@ -9,6 +11,8 @@ defmodule Chat.Server.Message do
 
   def channel_message(to, message) do
     send(to, {:send, message})
+
+    :ok
   end
 
   defp format_whisper(from, message) do

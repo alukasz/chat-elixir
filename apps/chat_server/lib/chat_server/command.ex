@@ -31,49 +31,35 @@ defmodule Chat.Server.Command do
   end
 
   def whisper(data) do
-    with {:ok, user} <- Auth.authenticate(),
-         {name, message} <- parse_name_message(data),
-         {:ok, pid} <- Users.find(name) do
-      Message.whisper(pid, user, message)
-      :ok
-    else
-      {:error, :unauthenticated} ->
-        respond("You are not authenticated, use 'auth <name>'.")
+    authenticated fn name ->
+      {user, message} = parse_name_message(data)
+      case Users.find(user) do
+        {:ok, pid} ->
+          Message.whisper(pid, name, message)
 
-      {:error, :not_found} ->
-        respond("User does not exists.")
+        {:error, :not_found} ->
+          respond("User does not exists.")
+      end
     end
   end
 
   def join(channel) do
-    case Auth.authenticate() do
-      {:ok, _} ->
-        Channels.join(channel)
-        respond("Joined.")
-
-      {:error, :unauthenticated} ->
-        respond("You are not authenticated, use 'auth <name>'.")
+    authenticated fn _ ->
+      Channels.join(channel)
+      respond("Joined.")
     end
   end
 
   def tell(data) do
-    case Auth.authenticate() do
-      {:ok, name} ->
-        {channel, message} = parse_name_message(data)
-        Channels.push(name, channel, message)
-
-      {:error, :unauthenticated} ->
-        respond("You are not authenticated, use 'auth <name>'.")
+    authenticated fn name ->
+      {channel, message} = parse_name_message(data)
+      Channels.push(name, channel, message)
     end
   end
 
   def yell(message) do
-    case Auth.authenticate() do
-      {:ok, name} ->
-        Channels.push(name, @broadcast_channel, message)
-
-      {:error, :unauthenticated} ->
-        respond("You are not authenticated, use 'auth <name>'.")
+    authenticated fn name ->
+      Channels.push(name, @broadcast_channel, message)
     end
   end
 
@@ -81,13 +67,24 @@ defmodule Chat.Server.Command do
     respond("Unknown command.")
   end
 
+  defp authenticated(fun) do
+    case Auth.authenticate() do
+      {:ok, name} ->
+        fun.(name)
+
+      {:error, :unauthenticated} ->
+        respond("You are not authenticated, use 'auth <name>'.")
+    end
+  end
+
   defp respond(message) do
     {:send, message}
   end
 
   defp parse_name_message(data) do
-    data
-    |> String.split(" ", parts: 2, trim: true)
-    |> List.to_tuple()
+    case String.split(data, " ", parts: 2, trim: true) do
+      [name] -> {name, ""}
+      [name, message] -> {name, message}
+    end
   end
 end
