@@ -51,6 +51,7 @@ defmodule Chat.Server.Handler do
       "tell <channel> <message> - sends 'message' in 'channel', 't' for short",
       "users <channel> - lists users in 'channel', 'u' for short",
       "count - number of users, 'c' for short",
+      "yell <message>- broadcast message to everyone ('all' channel), y for short"
     ]
     |> Enum.map(&encode_data(&1))
     |> Enum.join()
